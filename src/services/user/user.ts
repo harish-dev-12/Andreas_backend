@@ -187,7 +187,7 @@ export const getDashboardStatsService = async (payload: any, res: Response) => {
                 otherThanInProgressCount: [
                     {
                         $match: {
-                            status: { $ne: "1" } // Exclude "in-progress" status
+                            status: { $ne: "1" } // Exclude "Completed" status
                         }
                     },
                     { $count: "count" }
