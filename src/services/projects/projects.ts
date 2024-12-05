@@ -48,8 +48,6 @@ export const getAllProjectService = async (payload: any) => {
     };
 };
 
-
-
 export const createProjectService = async (payload: any, res: Response) => {
 
     const project = new projectsModel({ ...payload }).save()
