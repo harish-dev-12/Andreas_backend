@@ -5,14 +5,27 @@ import {
     sendLatestUpdates,
     newPassswordAfterOTPVerified,
     getAllUsers,
-    createProject,
-    getAllProjects,
     getAUser,
     getIncomeData,
     deleteAUser,
     addCreditsManually,
     //  updateDashboardStats
 } from "../controllers/admin/admin";
+
+
+import { 
+    getUserProjects, 
+    createProject,
+    convertTextToVideo, 
+    convertAudioToVideo,
+     translateVideo,
+      deleteProject,
+      getAllProjects
+
+} 
+
+from "src/controllers/projects/projects";
+
 // import { checkAdminAuth } from "../middleware/check-auth";
 import { upload } from "../configF/multer";
 import { checkMulter } from "../lib/errors/error-response-handler"
@@ -31,14 +44,16 @@ router.patch("/forgot-password", forgotPassword)
 router.post("/verify-otp", verifyOtpPasswordReset)
 router.patch("/new-password-otp-verified", newPassswordAfterOTPVerified)
 router.get("/users", checkAuth, getAllUsers)
-router.post("/create-project", checkAuth, createProject)
-router.get("/projects", checkAuth, getAllProjects)
+router.get("/dashboard", checkAuth, getDashboardStats)
+
+router.route("/projects").post(checkAuth, createProject).get(checkAuth, getAllProjects)
+
 
 
 router.post("/send-latest-updates", checkAuth, sendLatestUpdates)
 router.post("/send-notification", checkAuth, sendNotificationToUsers)
 router.post("/send-notification-to-specific-users", checkAuth, sendNotificationToUser)
-router.get("/dashboard", checkAuth, getDashboardStats)
+
 
 router.route("/users/:id").get(checkAuth, getAUser).delete(checkAuth, deleteAUser)
 router.post("/users/add-credit/:id", checkAuth, addCreditsManually)

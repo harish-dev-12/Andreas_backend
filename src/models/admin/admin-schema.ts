@@ -6,6 +6,10 @@ const adminSchema = new mongoose.Schema({
     // required: true,
     unique: true
 },
+role: {
+    type: String,
+    requried: true
+},
 fullName: {
     type: String,
     requried: true

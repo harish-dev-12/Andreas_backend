@@ -39,7 +39,7 @@ export const loginService = async (payload: any, res: Response) => {
     const tokenPayload = {
         id: getAdmin._id,
         email: getAdmin.email,
-        // role: getAdmin.role
+        role: getAdmin.role
     }
     // const token = jwt.sign(tokenPayload, process.env.JWT_SECRET as string, { expiresIn: "30d" })
     // res.cookie("token", token, {
@@ -106,40 +106,6 @@ export const newPassswordAfterOTPVerifiedService = async (payload: { password: s
         success: true,
         message: "Password updated successfully",
         data: response
-    }
-}
-
-export const createProjectService = async (payload: any, res: Response) => {
-
-    const project = new projectsModel({ ...payload }).save()
-    console.log(project);
-    return { success: true, message: "Project created successfull" }
-
-}
-
-
-export const getAllProjectService = async (payload: any) => {
-    const page = parseInt(payload.page as string) || 1
-    const limit = parseInt(payload.limit as string) || 0
-    const offset = (page - 1) * limit
-    const { query, sort } = queryBuilder(payload, ['completed', 'in-progress'])
-    const totalDataCount = Object.keys(query).length < 1 ? await projectsModel.countDocuments() : await projectsModel.countDocuments(query)
-    const results = await projectsModel.find(query).sort(sort).skip(offset).limit(limit).select("-__v")
-    if (results.length) return {
-        page,
-        limit,
-        success: true,
-        total: totalDataCount,
-        data: results
-    }
-    else {
-        return {
-            data: [],
-            page,
-            limit,
-            success: false,
-            total: 0
-        }
     }
 }
 

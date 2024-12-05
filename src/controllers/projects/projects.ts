@@ -2,9 +2,35 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { httpStatusCode } from "src/lib/constant";
 import { errorParser } from "src/lib/errors/error-response-handler";
-import { getUserProjectsService, convertTextToVideoService, convertaAudioToVideoService, translateVideoService, deleteProjectService } from "src/services/projects/projects";
+import { getAllProjectService, createProjectService, getUserProjectsService, convertTextToVideoService, convertaAudioToVideoService, translateVideoService, deleteProjectService } from "src/services/projects/projects";
 import { requestAudioToVideoSchema, requestTextToVideoSchema, requestVideoTranslationSchema } from "src/validation/client-user";
 import { formatZodErrors } from "src/validation/format-zod-errors";
+
+
+export const getAllProjects = async (req: Request, res: Response) => {
+    try {
+        // console.log(req.query);
+        const response = await getAllProjectService(req.query)
+        return res.status(httpStatusCode.OK).json(response)
+    } catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
+    }
+}
+
+
+export const createProject = async (req: Request, res: Response) => {
+    try {
+        const response = await createProjectService(req.body, res)
+        return res.status(httpStatusCode.OK).json(response)
+    } catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
+    }
+}
+
+
+
 
 export const getUserProjects = async (req: Request, res: Response) => {
     try {

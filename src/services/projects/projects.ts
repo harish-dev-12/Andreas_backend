@@ -7,12 +7,59 @@ import { httpStatusCode } from "src/lib/constant"
 import { errorResponseHandler } from "src/lib/errors/error-response-handler"
 import { projectsModel } from "src/models/user/projects-schema"
 import { usersModel } from "src/models/user/user-schema"
+import { queryBuilder } from "../../utils";
 import { flaskTextToVideo, flaskAudioToVideo, flaskTranslateVideo } from "src/utils";
 import mongoose from "mongoose";
 // Set up __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+export const getAllProjectService = async (payload: any) => {
+    const page = parseInt(payload.page as string) || 1;
+    const limit = parseInt(payload.limit as string) || 0;
+    const offset = (page - 1) * limit;
+
+    let { query, sort } = queryBuilder(payload, ['1']); // Assuming queryBuilder helps create initial query and sort objects.
+
+    // Add state filtering logic
+    if (payload.state) {
+        if (payload.state === "ongoing") {
+            query.status = { $ne: "1" }; 
+        } else if (payload.state === "completed") {
+            query.status = "1"; 
+        }
+    }
+
+    const totalDataCount = Object.keys(query).length < 1 ? await projectsModel.countDocuments() : await projectsModel.countDocuments(query);
+
+    const results = await projectsModel
+        .find(query)
+        .sort(sort)
+        .skip(offset)
+        .limit(limit)
+        .select("-__v");
+
+    return {
+        page,
+        limit,
+        success: results.length > 0,
+        total: totalDataCount,
+        data: results.length > 0 ? results : [],
+    };
+};
+
+
+
+export const createProjectService = async (payload: any, res: Response) => {
+
+    const project = new projectsModel({ ...payload }).save()
+    console.log(project);
+    return { success: true, message: "Project created successfull" }
+
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 export const getUserProjectsService = async (payload: any, res: Response) => {
     const { id } = payload
     const user = await usersModel.findById(id)
