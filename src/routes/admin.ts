@@ -23,9 +23,7 @@ import {
     deleteProject,
     getAllProjects
 
-} 
-
-from "src/controllers/projects/projects";
+} from "src/controllers/projects/projects";
 
 // import { checkAdminAuth } from "../middleware/check-auth";
 import { upload } from "../configF/multer";
