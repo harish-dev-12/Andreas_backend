@@ -6,11 +6,12 @@ import { generatePasswordResetToken, generatePasswordResetTokenByPhone, getPassw
 import { sendPasswordResetEmail } from "../../utils/mails/mail"
 import { generatePasswordResetTokenByPhoneWithTwilio } from "../../utils/sms/sms"
 import { httpStatusCode } from "../../lib/constant"
-import mongoose from "mongoose"
 import { passwordResetTokenModel } from "../../models/password-token-schema"
+import { projectsModel } from "src/models/user/projects-schema";
 import { customAlphabet } from "nanoid"
 import { increaseReferredCountAndCredits } from "src/utils"
 import { sendNotificationToUserService } from "../notifications/notifications"
+import mongoose from "mongoose"
 
 
 export const signupService = async (payload: any, res: Response) => {
@@ -158,4 +159,101 @@ export const editUserInfoService = async (payload: any, res: Response) => {
         message: "Client info updated successfully",
         data: updatedClient
     }
+}
+
+
+
+// Dashboard
+export const getDashboardStatsService = async (payload: any, res: Response) => {
+    //Ongoing project count
+    const id = "675151cbe56221aaaaa68963";
+
+    const projectCounts = await projectsModel.aggregate([
+        {
+            $match: {
+                userId: id 
+            }
+        },
+        {
+            $facet: {
+                completedCount: [
+                    {
+                        $match: {
+                            status: "1" // Completed status
+                        }
+                    },
+                    { $count: "count" }
+                ],
+                otherThanInProgressCount: [
+                    {
+                        $match: {
+                            status: { $ne: "1" } // Exclude "in-progress" status
+                        }
+                    },
+                    { $count: "count" }
+                ]
+            }
+        }
+    ]);
+    
+    console.log(projectCounts);
+
+      const completedCount = projectCounts[0].completedCount[0]?.count || 0;
+      const otherThanInProgressCount =
+        projectCounts[0].otherThanInProgressCount[0]?.count || 0;
+
+    //progress project
+
+      const progressProjects = await projectsModel.aggregate([
+        {
+          $match: {
+            userId: id ,
+            status: { $ne: "completed" } 
+          }
+        },
+        {
+          $project: { 
+            projectName: 1,
+            projectimageLink: 1,
+          }
+        }
+      ]);
+
+    //recent project
+
+    const recentProjects = await projectsModel.aggregate([
+        {
+            $match: {
+                userId: id
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1 
+            }
+        },
+        {
+            $project: { 
+                projectName: 1,
+                projectstartDate: 1,
+                projectendDate: 1,
+                projectimageLink: 1
+            }
+        }
+    ]);
+    
+
+
+    const response = {
+        success: true,
+        message: "Dashboard stats fetched successfully",
+        data: {
+            completedCount,
+            otherThanInProgressCount,
+            progressProjects,
+            recentProjects,
+        }
+    }
+
+    return response
 }

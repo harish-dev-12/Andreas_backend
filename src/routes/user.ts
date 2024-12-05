@@ -1,6 +1,6 @@
 import { Router } from "express";
 import express from "express";
-import { login, signup, forgotPassword, verifyOtpPasswordReset, newPassswordAfterOTPVerified, passwordReset, getUserInfo, editUserInfo, getUserInfoByEmail } from "../controllers/user/user";
+import { login, signup, forgotPassword, verifyOtpPasswordReset, newPassswordAfterOTPVerified, getDashboardStats, passwordReset, getUserInfo, editUserInfo, getUserInfoByEmail } from "../controllers/user/user";
 import { getAllNotificationsOfUser, markAllNotificationsAsRead } from "src/controllers/notifications/notifications";
 import { getUserProjects, convertTextToVideo, convertAudioToVideo, translateVideo, deleteProject } from "src/controllers/projects/projects";
 import { checkAuth } from "src/middleware/check-auth";
@@ -14,6 +14,7 @@ router.post("/login", login)
 router.patch("/forgot-password", forgotPassword)
 router.post("/verify-otp", verifyOtpPasswordReset)
 router.patch("/new-password-otp-verified", newPassswordAfterOTPVerified)
+router.get("/dashboard", checkAuth, getDashboardStats)
 
 
 router.get('/avatars', checkAuth, getAvatar)

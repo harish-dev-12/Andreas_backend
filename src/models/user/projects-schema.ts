@@ -9,7 +9,7 @@ const projectsSchema = new Schema({
     projectstartDate: { type: String, required: true },
     projectendDate: { type: String, required: true },
     description: { type: Boolean, required: true },
-    attachments: { type: String, required: false },
+    attachments: { type: [String], required: false },
     status: { type: String, required: false },
     notes: { type: String, required: false },
 }, { timestamps: true })

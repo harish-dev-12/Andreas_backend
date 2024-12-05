@@ -239,7 +239,7 @@ export const getDashboardStatsService = async (payload: any, res: Response) => {
             completedCount: [
               {
                 $match: {
-                  status: "completed"
+                  status: "1"
                 }
               },
               { $count: "count" }
@@ -247,7 +247,7 @@ export const getDashboardStatsService = async (payload: any, res: Response) => {
             otherThanInProgressCount: [
               {
                 $match: {
-                  status: { $ne: "completed" }
+                  status: { $ne: "1" }
                 }
               },
               { $count: "count" }
@@ -265,7 +265,7 @@ export const getDashboardStatsService = async (payload: any, res: Response) => {
       const progressProjects = await projectsModel.aggregate([
         {
           $match: {
-            status: { $ne: "completed" } 
+            status: { $ne: "1" } 
           }
         },
         {
