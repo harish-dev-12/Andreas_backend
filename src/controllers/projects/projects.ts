@@ -22,7 +22,7 @@ export const getAllProjects = async (req: Request, res: Response) => {
 export const createProject = async (req: Request, res: Response) => {
     try {
         const response = await createProjectService(req.body, res)
-        return res.status(httpStatusCode.OK).json(response)
+        return res.status(httpStatusCode.CREATED).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
         return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
