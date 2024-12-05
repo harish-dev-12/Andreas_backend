@@ -81,7 +81,7 @@ export const getAprojectService = async (projectId: string, res: Response) => {
             }
         };
     } catch (error) {
-        return errorResponseHandler("An error occurred while fetching project details", httpStatusCode.INTERNAL_SERVER_ERROR, res, error);
+        return errorResponseHandler("An error occurred while fetching project details", httpStatusCode.INTERNAL_SERVER_ERROR, res);
     }
 };
 
