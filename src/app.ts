@@ -7,6 +7,7 @@ import connectDB from "./configF/db"
 import { admin, user, landing } from "./routes"
 import { checkValidAdminRole } from "./utils"
 import bodyParser from 'body-parser'
+import { login } from "./controllers/admin/admin"
 
 // Create __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url) // <-- Define __filename
@@ -49,6 +50,6 @@ app.get("/", (_, res: any) => {
 
 app.use("/api/admin", checkValidAdminRole, admin);
 app.use("/api/user", user);
-app.use("/api", admin);
+app.use("/api/login", login);
 
 app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));

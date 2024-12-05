@@ -29,36 +29,46 @@ import { avatarModel } from "src/models/admin/avatar-schema";
 //Auth Services
 
 export const loginService = async (payload: any, res: Response) => {
-  const { email, phoneNumber, password } = payload;
-  const query = email ? { email } : { phoneNumber };
+    const { username, password } = payload;
+    const toNumber = Number(username);
+    const isEmail = isNaN(toNumber); 
+    let user: any = null;
+    let userType: string = '';
+    console.log('isEmail: ', isEmail);
 
+    if (isEmail) {
+        user = await adminModel.findOne({ email: username }).select('+password');
+        if (!user) {
+            user = await usersModel.findOne({ email: username }).select('+password');
+        }
+    } else {
+        user = await adminModel.findOne({ phoneNumber: username }).select('+password');
+        if (!user) {
+            user = await usersModel.findOne({ phoneNumber: username }).select('+password');
+        }
+    }
 
-  let user = await adminModel.findOne(query).select("+password");
-  let userType = "admin"; 
+    if (!user) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
 
-  if (!user) {
-      user = await usersModel.findOne(query).select("+password");
-      userType = "user"; 
-  }
+    let isPasswordValid = false;
+    if (user) {
+        isPasswordValid = await bcrypt.compare(password, user.password);
+    }
 
-  if (!user) {
-      return errorResponseHandler("User not found", httpStatusCode.NOT_FOUND, res);
-  }
+    if (!isPasswordValid) return errorResponseHandler('Invalid password', httpStatusCode.UNAUTHORIZED, res);
 
-  const passwordMatch = bcrypt.compareSync(password, user.password);
-  if (!passwordMatch) {
-      return errorResponseHandler("Invalid password", httpStatusCode.BAD_REQUEST, res);
-  }
+    const userObject = user.toObject();
+    delete userObject.password;
 
-  const tokenPayload = {id: user._id,email: user.email,role: user.role || "user"};
-
-  return {
-      success: true,
-      message: "Login successful",
-      data: tokenPayload,
-  };
-
+    return {
+        success: true,
+        message: "Login successful",
+        data: {
+            user: userObject,
+        },
+    };
 };
+
 
 
 export const forgotPasswordService = async (payload: any, res: Response) => {
@@ -145,39 +155,21 @@ export const getAllUsersService = async (payload: any) => {
 }
 
 export const getAUserService = async (id: string, res: Response) => {
-    const user = await usersModel.findById(id)
-    if (!user) return errorResponseHandler("User not found", httpStatusCode.NOT_FOUND, res)
-    const userProjects = await projectsModel.find({ userId: id }).select("-__v");
-    if (userProjects.length === 0) {
-        return {
-            success: true,
-            message: "User retrieved successfully",
-            data: {
-                user,
-                projects: [],
-                avatarsUsed: []
-            }
-        };
-    }
+  const user = await usersModel.findById(id);
+  if (!user) return errorResponseHandler("User not found", httpStatusCode.NOT_FOUND, res);
 
-    const usedAvatars = userProjects.map((project: any) => project.projectAvatar);
-    const uniqueAvatars = [...new Set(usedAvatars)];
-    const avatarIds = uniqueAvatars.filter(avatar => mongoose.Types.ObjectId.isValid(avatar));
-    const userUploadedPaths = uniqueAvatars.filter(avatar => !mongoose.Types.ObjectId.isValid(avatar));
+  const userProjects = await projectsModel.find({ userId: id }).select("-__v");
 
-    const avatarsInfo = avatarIds.length > 0 ? await avatarModel.find({ _id: { $in: avatarIds } }).select("-__v avatarUrl") : [];
-    const combinedAvatarsInfo = [...avatarsInfo, ...userUploadedPaths];
-
-    return {
-        success: true,
-        message: "User retrieved successfully",
-        data: {
-            user,
-            projects: userProjects,
-            avatarsUsed: combinedAvatarsInfo
-        }
-    };
+  return {
+      success: true,
+      message: "User retrieved successfully",
+      data: {
+          user,
+          projects: userProjects.length > 0 ? userProjects : [],
+      }
+  };
 }
+
 
 
 export const addCreditsManuallyService = async (id: string, amount: number, res: Response) => {
@@ -232,77 +224,20 @@ export const sendLatestUpdatesService = async (payload: any, res: Response) => {
 
 // Dashboard
 export const getDashboardStatsService = async (payload: any, res: Response) => {
-    //Ongoing project count
-    const projectCounts = await projectsModel.aggregate([
-        {
-          $facet: {
-            completedCount: [
-              {
-                $match: {
-                  status: "1"
-                }
-              },
-              { $count: "count" }
-            ],
-            otherThanInProgressCount: [
-              {
-                $match: {
-                  status: { $ne: "1" }
-                }
-              },
-              { $count: "count" }
-            ]
-          }
-        }
-      ]);
-
-      const completedCount = projectCounts[0].completedCount[0]?.count || 0;
-      const otherThanInProgressCount =
-        projectCounts[0].otherThanInProgressCount[0]?.count || 0;
-
-    //progress project
-
-      const progressProjects = await projectsModel.aggregate([
-        {
-          $match: {
-            status: { $ne: "1" } 
-          }
-        },
-        {
-          $project: { 
-            projectName: 1,
-            projectimageLink: 1,
-          }
-        }
-      ]);
-
-    //recent project
-
-      const recentProjects = await projectsModel.aggregate([
-        {
-          $sort: {
-            createdAt: -1 // Sort by creation date in descending order (most recent first)
-          }
-        },
-        {
-          $project: { // Optional: You can project only the fields you need
-            projectName: 1,
-            projectstartDate: 1,
-            projectendDate: 1,
-            projectimageLink: 1,
-          }
-        }
-      ]);
-
+   
+    const ongoingProjectCount = await projectsModel.countDocuments({status: { $ne: "1" } })
+    const completedProjectCount = await projectsModel.countDocuments({status: "1" })
+    const workingProjectDetails = await projectsModel.find({status: { $ne: "1" } }).select("projectName projectimageLink projectstartDate projectendDate"); // Adjust the fields as needed
+    const recentProjectDetails = await projectsModel.find({}).select("projectName projectimageLink projectstartDate projectendDate"); // Adjust the fields as needed
 
     const response = {
         success: true,
         message: "Dashboard stats fetched successfully",
         data: {
-            completedCount,
-            otherThanInProgressCount,
-            progressProjects,
-            recentProjects,
+          ongoingProjectCount,
+          completedProjectCount,
+          workingProjectDetails,
+          recentProjectDetails,
         }
     }
 

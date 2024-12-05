@@ -22,8 +22,9 @@ export const checkAuth = async (req: Request, res: Response, next: NextFunction)
             token,
             salt: process.env.JWT_SALT as string
         })
-        if (!decoded) return res.status(httpStatusCode.UNAUTHORIZED).json({ success: false, message: "Unauthorized token invalid or expired" })
-        const client = await usersModel.findById(decoded.id)
+        if (!decoded) return res.status(httpStatusCode.UNAUTHORIZED).json({ success: false, message: "Unauthorized token invalid or expired" });
+        console.log('decoded.id: ', decoded.id);
+        (req as any).userId = decoded.id
         next()
     } catch (error) {
         console.log('error: ', error);

@@ -38,23 +38,21 @@ import { checkAuth } from "src/middleware/check-auth";
 
 const router = Router();
 
-router.post("/login", login)
 router.patch("/forgot-password", forgotPassword)
 router.post("/verify-otp", verifyOtpPasswordReset)
 router.patch("/new-password-otp-verified", newPassswordAfterOTPVerified)
-router.get("/users", checkAuth, getAllUsers)
 router.get("/dashboard", checkAuth, getDashboardStats)
-
 router.route("/projects").post(checkAuth, createProject).get(checkAuth, getAllProjects)
 router.route("/project/:id").get(checkAuth, getAProject).delete(checkAuth, deleteAProject).patch(checkAuth, updateAProject)
-
+router.get("/users", checkAuth, getAllUsers)
+router.route("/users/:id").get(checkAuth, getAUser).delete(checkAuth, deleteAUser)
 
 router.post("/send-latest-updates", checkAuth, sendLatestUpdates)
 router.post("/send-notification", checkAuth, sendNotificationToUsers)
 router.post("/send-notification-to-specific-users", checkAuth, sendNotificationToUser)
 
 
-router.route("/users/:id").get(checkAuth, getAUser).delete(checkAuth, deleteAUser)
+
 router.post("/users/add-credit/:id", checkAuth, addCreditsManually)
 router.get("/income", checkAuth, getIncomeData)
 

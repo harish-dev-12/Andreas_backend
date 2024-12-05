@@ -61,7 +61,7 @@ export const forgotPasswordService = async (payload: any, res: Response) => {
             return { success: true, message: "Password reset email sent with otp" }
         }
 
-    } 
+    }
     else {
         const generatePasswordResetTokenBysms = await generatePasswordResetTokenByPhone(phoneNumber)
 
@@ -94,15 +94,15 @@ export const newPassswordAfterOTPVerifiedService = async (payload: { password: s
 
     if (existingToken.email) {
         existingClient = await usersModel.findOne({ email: existingToken.email });
-      } 
-      else if (existingToken.phoneNumber) {
+    }
+    else if (existingToken.phoneNumber) {
         existingClient = await usersModel.findOne({ phoneNumber: existingToken.phoneNumber });
-      }
+    }
 
     if (!existingClient) return errorResponseHandler("Client email not found", httpStatusCode.NOT_FOUND, res)
 
     const hashedPassword = await bcrypt.hash(password, 10)
-    const response = await usersModel.findByIdAndUpdate(existingClient._id, { password: hashedPassword }, {new: true })
+    const response = await usersModel.findByIdAndUpdate(existingClient._id, { password: hashedPassword }, { new: true })
     await passwordResetTokenModel.findByIdAndDelete(existingToken._id)
 
     return {
@@ -166,92 +166,22 @@ export const editUserInfoService = async (payload: any, res: Response) => {
 // Dashboard
 export const getDashboardStatsService = async (payload: any, res: Response) => {
     //Ongoing project count
-    const id = "675151cbe56221aaaaa68963";
+    const userId = payload.userId
 
-    const projectCounts = await projectsModel.aggregate([
-        {
-            $match: {
-                userId: id 
-            }
-        },
-        {
-            $facet: {
-                completedCount: [
-                    {
-                        $match: {
-                            status: "1" // Completed status
-                        }
-                    },
-                    { $count: "count" }
-                ],
-                otherThanInProgressCount: [
-                    {
-                        $match: {
-                            status: { $ne: "1" } // Exclude "Completed" status
-                        }
-                    },
-                    { $count: "count" }
-                ]
-            }
-        }
-    ]);
+    const ongoingProjectCount = await projectsModel.countDocuments({ userId, status: { $ne: "1" } })
+
+    const completedProjectCount = await projectsModel.countDocuments({ userId,status: "1" })
+
+    const workingProjectDetails = await projectsModel.find({ userId, status: { $ne: "1" } }).select("projectName projectimageLink status"); // Adjust the fields as needed
     
-    console.log(projectCounts);
-
-      const completedCount = projectCounts[0].completedCount[0]?.count || 0;
-      const otherThanInProgressCount =
-        projectCounts[0].otherThanInProgressCount[0]?.count || 0;
-
-    //progress project
-
-      const progressProjects = await projectsModel.aggregate([
-        {
-          $match: {
-            userId: id ,
-            status: { $ne: "completed" } 
-          }
-        },
-        {
-          $project: { 
-            projectName: 1,
-            projectimageLink: 1,
-          }
-        }
-      ]);
-
-    //recent project
-
-    const recentProjects = await projectsModel.aggregate([
-        {
-            $match: {
-                userId: id
-            }
-        },
-        {
-            $sort: {
-                createdAt: -1 
-            }
-        },
-        {
-            $project: { 
-                projectName: 1,
-                projectstartDate: 1,
-                projectendDate: 1,
-                projectimageLink: 1
-            }
-        }
-    ]);
-    
-
 
     const response = {
         success: true,
         message: "Dashboard stats fetched successfully",
         data: {
-            completedCount,
-            otherThanInProgressCount,
-            progressProjects,
-            recentProjects,
+            ongoingProjectCount,
+            completedProjectCount,
+             workingProjectDetails,
         }
     }
 
