@@ -18,10 +18,10 @@ import {
     createProject,
     getAProject,
     deleteAProject,
-     updateAProject,
-     translateVideo,
-      deleteProject,
-      getAllProjects
+    updateAProject,
+    translateVideo,
+    deleteProject,
+    getAllProjects
 
 } 
 
