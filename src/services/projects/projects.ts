@@ -8,6 +8,7 @@ import { errorResponseHandler } from "src/lib/errors/error-response-handler"
 import { projectsModel } from "src/models/user/projects-schema"
 import { usersModel } from "src/models/user/user-schema"
 import { queryBuilder } from "../../utils";
+import { customAlphabet } from "nanoid"
 import { flaskTextToVideo, flaskAudioToVideo, flaskTranslateVideo } from "src/utils";
 import mongoose from "mongoose";
 // Set up __dirname for ES modules
@@ -49,7 +50,9 @@ export const getAllProjectService = async (payload: any) => {
 };
 
 export const createProjectService = async (payload: any, res: Response) => {
-
+    
+    const identifier = customAlphabet('0123456789', 3)
+    payload.identifier = identifier()
     const project = new projectsModel({ ...payload }).save()
     console.log(project);
     return { success: true, message: "Project created successfull" }
