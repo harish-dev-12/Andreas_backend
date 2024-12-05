@@ -1,7 +1,7 @@
 import { configDotenv } from "dotenv";
 import mongoose from "mongoose";
 
-configDotenv();
+configDotenv(); 
 
 const connectDB = async () => {
   const maxRetries = 5; // Number of retry attempts
