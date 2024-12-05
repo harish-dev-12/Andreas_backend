@@ -18,6 +18,7 @@ import {
     createProject,
     getAProject,
     deleteAProject,
+     updateAProject,
      translateVideo,
       deleteProject,
       getAllProjects
@@ -47,7 +48,7 @@ router.get("/users", checkAuth, getAllUsers)
 router.get("/dashboard", checkAuth, getDashboardStats)
 
 router.route("/projects").post(checkAuth, createProject).get(checkAuth, getAllProjects)
-router.route("/project/:id").get(checkAuth, getAProject).delete(checkAuth, deleteAProject)
+router.route("/project/:id").get(checkAuth, getAProject).delete(checkAuth, deleteAProject).patch(checkAuth, updateAProject)
 
 
 router.post("/send-latest-updates", checkAuth, sendLatestUpdates)

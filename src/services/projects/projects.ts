@@ -61,9 +61,9 @@ export const createProjectService = async (payload: any, res: Response) => {
 
 
 
-export const getAprojectService = async (projectId: string, res: Response) => {
+export const getAprojectService = async (id: string, res: Response) => {
    
-        const project = await projectsModel.findById(projectId);
+        const project = await projectsModel.findById(id);
         if (!project) return errorResponseHandler("Project not found", httpStatusCode.NOT_FOUND, res);
 
         const userId = project.userId; 
@@ -82,6 +82,20 @@ export const getAprojectService = async (projectId: string, res: Response) => {
 };
 
 
+export const updateAProjectService = async (id: string, payload: any, res: Response) => {
+  
+    const project = await projectsModel.findById(id);
+    if (!project) return errorResponseHandler("Project not found", httpStatusCode.NOT_FOUND, res);
+
+    const updatedProject = await projectsModel.findByIdAndUpdate(id,{ ...payload },{ new: true});
+
+    return {
+        success: true,
+        message: "Project updated successfully",
+        data: updatedProject,
+    };
+
+};
 
 export const deleteAProjectService = async (id: string, res: Response) => {
     const user = await projectsModel.findById(id);
@@ -96,7 +110,6 @@ export const deleteAProjectService = async (id: string, res: Response) => {
         
     }
 }
-
 
 
 
