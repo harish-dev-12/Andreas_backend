@@ -16,8 +16,8 @@ import {
 import { 
     getUserProjects, 
     createProject,
-    convertTextToVideo, 
-    convertAudioToVideo,
+    getAProject,
+    deleteAProject,
      translateVideo,
       deleteProject,
       getAllProjects
@@ -47,7 +47,7 @@ router.get("/users", checkAuth, getAllUsers)
 router.get("/dashboard", checkAuth, getDashboardStats)
 
 router.route("/projects").post(checkAuth, createProject).get(checkAuth, getAllProjects)
-
+router.route("/project/:id").get(checkAuth, getAProject).delete(checkAuth, deleteAProject)
 
 
 router.post("/send-latest-updates", checkAuth, sendLatestUpdates)

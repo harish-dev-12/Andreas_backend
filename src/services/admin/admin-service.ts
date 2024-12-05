@@ -27,30 +27,39 @@ import { avatarModel } from "src/models/admin/avatar-schema";
 // }
 
 //Auth Services
+
 export const loginService = async (payload: any, res: Response) => {
+  const { email, phoneNumber, password } = payload;
+  const query = email ? { email } : { phoneNumber };
 
-    const { email, phoneNumber, password } = payload
-    const query = email ? { email } : { phoneNumber };
 
-    const getAdmin = await adminModel.findOne(query).select("+password")
-    if (!getAdmin) return errorResponseHandler("Admin not found", httpStatusCode.NOT_FOUND, res)
-    const passwordMatch = bcrypt.compareSync(payload.password, getAdmin.password)
-    if (!passwordMatch) return errorResponseHandler("Invalid password", httpStatusCode.BAD_REQUEST, res)
-    const tokenPayload = {
-        id: getAdmin._id,
-        email: getAdmin.email,
-        role: getAdmin.role
-    }
-    // const token = jwt.sign(tokenPayload, process.env.JWT_SECRET as string, { expiresIn: "30d" })
-    // res.cookie("token", token, {
-    //     httpOnly: true,
-    //     secure: true,
-    //     sameSite: "none",
-    //     domain: "24-x7-fx-admin-frontend.vercel.app",
-    //     maxAge: 30  24  60  60  1000
-    // })
-    return { success: true, message: "Admin Login successfull", data: tokenPayload }
-}
+  let user = await adminModel.findOne(query).select("+password");
+  let userType = "admin"; 
+
+  if (!user) {
+      user = await usersModel.findOne(query).select("+password");
+      userType = "user"; 
+  }
+
+  if (!user) {
+      return errorResponseHandler("User not found", httpStatusCode.NOT_FOUND, res);
+  }
+
+  const passwordMatch = bcrypt.compareSync(password, user.password);
+  if (!passwordMatch) {
+      return errorResponseHandler("Invalid password", httpStatusCode.BAD_REQUEST, res);
+  }
+
+  const tokenPayload = {id: user._id,email: user.email,role: user.role || "user"};
+
+  return {
+      success: true,
+      message: "Login successful",
+      data: tokenPayload,
+  };
+
+};
+
 
 export const forgotPasswordService = async (payload: any, res: Response) => {
     const { email, phoneNumber, password } = payload

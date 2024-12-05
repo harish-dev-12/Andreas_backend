@@ -24,9 +24,9 @@ export const getAllProjectService = async (payload: any) => {
     // Add state filtering logic
     if (payload.state) {
         if (payload.state === "ongoing") {
-            query.status = { $ne: "1" }; 
+            (query as any).status = { $ne: "1" }; 
         } else if (payload.state === "completed") {
-            query.status = "1"; 
+            (query as any).status = "1"; 
         }
     }
 
@@ -57,6 +57,54 @@ export const createProjectService = async (payload: any, res: Response) => {
     return { success: true, message: "Project created successfull" }
 
 }
+
+
+
+export const getAprojectService = async (projectId: string, res: Response) => {
+    try {
+   
+        const project = await projectsModel.findById(projectId);
+        if (!project) {
+            return errorResponseHandler("Project not found", httpStatusCode.NOT_FOUND, res);
+        }
+
+        const userId = project.userId; 
+        if (!userId) {
+            return errorResponseHandler("User ID not found in project details", httpStatusCode.BAD_REQUEST, res);
+        }
+        
+        const user = await usersModel.findOne({ _id: userId }).select("-__v");
+        return {
+            success: true,
+            message: "Project retrieved successfully",
+            data: {
+                project,
+                user,
+            }
+        };
+    } catch (error) {
+        return errorResponseHandler("An error occurred while fetching project details", httpStatusCode.INTERNAL_SERVER_ERROR, res, error);
+    }
+};
+
+
+
+export const deleteAProjectService = async (id: string, res: Response) => {
+    const user = await projectsModel.findById(id);
+    if (!user) return errorResponseHandler("project not found", httpStatusCode.NOT_FOUND, res);
+
+    // Delete user projects ----
+    await projectsModel.findByIdAndDelete(id)
+
+    return {
+        success: true,
+        message: "Project deleted successfully"
+        
+    }
+}
+
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

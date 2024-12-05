@@ -107,12 +107,19 @@ export const getAllUsers = async (req: Request, res: Response) => {
 }
 
 
-
-
-
 export const getAUser = async (req: Request, res: Response) => {
     try {
         const response = await getAUserService(req.params.id, res)
+        return res.status(httpStatusCode.OK).json(response)
+    } catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
+    }
+}
+
+export const deleteAUser = async (req: Request, res: Response) => {
+    try {
+        const response = await deleteAUserService(req.params.id, res)
         return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
@@ -130,15 +137,7 @@ export const addCreditsManually = async (req: Request, res: Response) => {
     }
 }
 
-export const deleteAUser = async (req: Request, res: Response) => {
-    try {
-        const response = await deleteAUserService(req.params.id, res)
-        return res.status(httpStatusCode.OK).json(response)
-    } catch (error: any) {
-        const { code, message } = errorParser(error)
-        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
-    }
-}
+
 
 export const sendLatestUpdates = async (req: Request, res: Response) => {
     try {

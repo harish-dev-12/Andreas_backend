@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { httpStatusCode } from "src/lib/constant";
 import { errorParser } from "src/lib/errors/error-response-handler";
-import { getAllProjectService, createProjectService, getUserProjectsService, convertTextToVideoService, convertaAudioToVideoService, translateVideoService, deleteProjectService } from "src/services/projects/projects";
+import { getAllProjectService, createProjectService, getAprojectService, deleteAProjectService, getUserProjectsService, convertTextToVideoService, convertaAudioToVideoService, translateVideoService, deleteProjectService } from "src/services/projects/projects";
 import { requestAudioToVideoSchema, requestTextToVideoSchema, requestVideoTranslationSchema } from "src/validation/client-user";
 import { formatZodErrors } from "src/validation/format-zod-errors";
 
@@ -22,6 +22,27 @@ export const getAllProjects = async (req: Request, res: Response) => {
 export const createProject = async (req: Request, res: Response) => {
     try {
         const response = await createProjectService(req.body, res)
+        return res.status(httpStatusCode.OK).json(response)
+    } catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
+    }
+}
+
+
+export const getAProject = async (req: Request, res: Response) => {
+    try {
+        const response = await getAprojectService(req.params.id, res)
+        return res.status(httpStatusCode.OK).json(response)
+    } catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
+    }
+}
+
+export const deleteAProject = async (req: Request, res: Response) => {
+    try {
+        const response = await deleteAProjectService(req.params.id, res)
         return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
