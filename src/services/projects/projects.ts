@@ -62,17 +62,12 @@ export const createProjectService = async (payload: any, res: Response) => {
 
 
 export const getAprojectService = async (projectId: string, res: Response) => {
-    try {
    
         const project = await projectsModel.findById(projectId);
-        if (!project) {
-            return errorResponseHandler("Project not found", httpStatusCode.NOT_FOUND, res);
-        }
+        if (!project) return errorResponseHandler("Project not found", httpStatusCode.NOT_FOUND, res);
 
         const userId = project.userId; 
-        if (!userId) {
-            return errorResponseHandler("User ID not found in project details", httpStatusCode.BAD_REQUEST, res);
-        }
+        if (!userId) return errorResponseHandler("User ID not found in project details", httpStatusCode.BAD_REQUEST, res);
         
         const user = await usersModel.findOne({ _id: userId }).select("-__v");
         return {
@@ -83,9 +78,7 @@ export const getAprojectService = async (projectId: string, res: Response) => {
                 user,
             }
         };
-    } catch (error) {
-        return errorResponseHandler("An error occurred while fetching project details", httpStatusCode.INTERNAL_SERVER_ERROR, res);
-    }
+
 };
 
 
