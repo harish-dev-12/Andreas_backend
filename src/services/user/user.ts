@@ -119,7 +119,7 @@ export const newPassswordAfterOTPVerifiedService = async (payload: { password: s
 
     }
 
-    console.log('existingClient',existingClient)
+    // console.log('existingClient',existingClient)
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
