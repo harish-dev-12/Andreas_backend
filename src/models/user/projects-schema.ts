@@ -12,7 +12,7 @@ const projectsSchema = new Schema({
     attachments: { type: [String], required: false },
     associates: { type: [String], required: false },
     status: { type: String, required: false },
-    notes: { type: String, required: false },
+    notes: { type: [String], required: false },
 }, { timestamps: true })
 
 export const projectsModel = model("projects", projectsSchema)
