@@ -90,18 +90,13 @@ export const forgotPasswordService = async (payload: any, res: Response) => {
             return { success: true, message: "Password reset email sent with OTP" };
         }
     } else {
-        // Format phone number with country code
         const formattedPhoneNumber = `${countryCode}${username}`;
         user = await adminModel.findOne({ phoneNumber: formattedPhoneNumber }).select('+password');
         if (!user) {
             user = await usersModel.findOne({ phoneNumber: formattedPhoneNumber }).select('+password');
         }
-
-        if (!user) {
-            return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
-        }
-
-        // Generate password reset token for phone
+        if (!user) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
+       
         const passwordResetTokenBySms = await generatePasswordResetTokenByPhone(formattedPhoneNumber);
         if (passwordResetTokenBySms) {
             await generatePasswordResetTokenByPhoneWithTwilio(formattedPhoneNumber, passwordResetTokenBySms.token);
@@ -109,7 +104,6 @@ export const forgotPasswordService = async (payload: any, res: Response) => {
         }
     }
 
-    // If token generation failed
     return errorResponseHandler('Failed to generate password reset token', httpStatusCode.INTERNAL_SERVER_ERROR, res);
 };
 
