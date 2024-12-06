@@ -9,6 +9,7 @@ import { checkValidAdminRole } from "./utils"
 import bodyParser from 'body-parser'
 import { login } from "./controllers/admin/admin"
 import { forgotPassword } from "./controllers/admin/admin"
+import {  verifyOtpPasswordReset, newPassswordAfterOTPVerified } from "./controllers/user/user";
 
 // Create __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url) // <-- Define __filename
@@ -53,7 +54,8 @@ app.use("/api/admin", checkValidAdminRole, admin);
 app.use("/api/user", user);
 app.use("/api/login", login);
 app.use("/api/forgot-password", forgotPassword);
-
+app.use("/api/verify-otp", verifyOtpPasswordReset)
+app.use("/api/new-password-otp-verified", newPassswordAfterOTPVerified)
 
 
 app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
