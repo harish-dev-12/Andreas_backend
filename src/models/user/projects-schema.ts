@@ -8,8 +8,9 @@ const projectsSchema = new Schema({
     projectimageLink: { type: String, required: true },
     projectstartDate: { type: String, required: true },
     projectendDate: { type: String, required: true },
-    description: { type: Boolean, required: true },
+    description: { type: String, required: true },
     attachments: { type: [String], required: false },
+    associates: { type: [String], required: false },
     status: { type: String, required: false },
     notes: { type: String, required: false },
 }, { timestamps: true })
