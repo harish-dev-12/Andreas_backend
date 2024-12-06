@@ -49,7 +49,6 @@ export const getAllProjectService = async (payload: any) => {
     };
 };
 
-
 export const getUserProjectsService = async (payload: any, res: Response) => {
     const { id } = payload
     const user = await usersModel.findById(id)
@@ -59,9 +58,8 @@ export const getUserProjectsService = async (payload: any, res: Response) => {
     const limit = parseInt(payload.limit as string) || 0;
     const offset = (page - 1) * limit;
 
-    let { query, sort } = queryBuilder(payload, ['1']); // Assuming queryBuilder helps create initial query and sort objects.
+    let { query, sort } = queryBuilder(payload, ['1']); 
 
-    // Add state filtering logic
     if (payload.state) {
         if (payload.state === "ongoing") {
             (query as any).status = { $ne: "1" }; 
@@ -80,8 +78,6 @@ export const getUserProjectsService = async (payload: any, res: Response) => {
     .limit(limit)
     .select("-__v");
     
-
-    
     if (results.length === 0) {
        return errorResponseHandler("Project not found for this user", httpStatusCode.NOT_FOUND, res);
     }else{
@@ -97,9 +93,6 @@ export const getUserProjectsService = async (payload: any, res: Response) => {
 
 }
 
-
-
-
 export const createProjectService = async (payload: any, res: Response) => {
     
     const identifier = customAlphabet('0123456789', 3)
@@ -109,8 +102,6 @@ export const createProjectService = async (payload: any, res: Response) => {
     return { success: true, message: "Project created successfull" }
 
 }
-
-
 
 export const getAprojectService = async (id: string, res: Response) => {
    
@@ -124,7 +115,6 @@ export const getAprojectService = async (id: string, res: Response) => {
         };
 
 };
-
 
 export const updateAProjectService = async (id: string, payload: any, res: Response) => {
   
