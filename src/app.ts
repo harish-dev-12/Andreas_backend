@@ -52,7 +52,7 @@ app.get("/", (_, res: any) => {
 app.use("/api/admin", checkValidAdminRole, admin);
 app.use("/api/user", user);
 app.use("/api/login", login);
-app.use("/api/login", forgotPassword);
+app.use("/api/forgot-password", forgotPassword);
 
 
 app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
