@@ -193,6 +193,23 @@ export const addCreditsManuallyService = async (id: string, amount: number, res:
     }
 }
 
+
+export const updateAUserService = async (id: string, payload: any, res: Response) => {
+    const user = await usersModel.findById(id);
+    if (!user) return errorResponseHandler("User not found", httpStatusCode.NOT_FOUND, res);
+    const countryCode = "+45";
+    payload.phoneNumber = `${countryCode}${payload.phoneNumber}`;
+    const updateduser = await usersModel.findByIdAndUpdate(id,{ ...payload },{ new: true});
+
+    return {
+        success: true,
+        message: "User updated successfully",
+        data: updateduser,
+    };
+
+};
+
+
 export const deleteAUserService = async (id: string, res: Response) => {
     const user = await usersModel.findById(id);
     if (!user) return errorResponseHandler("User not found", httpStatusCode.NOT_FOUND, res);

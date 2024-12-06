@@ -12,6 +12,7 @@ import {
     sendLatestUpdatesService,
     getAllUsersService,
     getAUserService,
+    updateAUserService,
     getIncomeDataService,
     deleteAUserService,
     addCreditsManuallyService
@@ -126,6 +127,17 @@ export const deleteAUser = async (req: Request, res: Response) => {
         return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
     }
 }
+
+export const updateAUser = async (req: Request, res: Response) => {
+    try {
+        const response = await updateAUserService(req.params.id, req.body, res);
+        return res.status(httpStatusCode.OK).json(response)
+    } catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
+    }
+}
+
 
 export const addCreditsManually = async (req: Request, res: Response) => {
     try {

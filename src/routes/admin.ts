@@ -6,6 +6,7 @@ import {
     newPassswordAfterOTPVerified,
     getAllUsers,
     getAUser,
+    updateAUser,
     getIncomeData,
     deleteAUser,
     addCreditsManually,
@@ -44,7 +45,7 @@ router.get("/dashboard", checkAuth, getDashboardStats)
 router.route("/projects").post(checkAuth, createProject).get(checkAuth, getAllProjects)
 router.route("/project/:id").get(checkAuth, getAProject).delete(checkAuth, deleteAProject).patch(checkAuth, updateAProject)
 router.get("/users", checkAuth, getAllUsers)
-router.route("/users/:id").get(checkAuth, getAUser).delete(checkAuth, deleteAUser)
+router.route("/users/:id").get(checkAuth, getAUser).delete(checkAuth, deleteAUser).patch(checkAuth, updateAUser)
 
 router.post("/send-latest-updates", checkAuth, sendLatestUpdates)
 router.post("/send-notification", checkAuth, sendNotificationToUsers)
