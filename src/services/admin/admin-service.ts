@@ -71,31 +71,48 @@ export const loginService = async (payload: any, res: Response) => {
 
 
 export const forgotPasswordService = async (payload: any, res: Response) => {
-    const { email, phoneNumber, password } = payload
-    const query = email ? { email } : { phoneNumber };
-
-    const admin = await adminModel.findOne(query)
-    if (!admin) return errorResponseHandler("Admin not found", httpStatusCode.NOT_FOUND, res)
-
-    if (email) 
-        {
-            const passwordResetToken = await generatePasswordResetToken(email)
-            if (passwordResetToken !== null) {
-                await sendPasswordResetEmail(email, passwordResetToken.token)
-                return { success: true, message: "Password reset email sent with otp" }
-            }
+    const { username } = payload;
+    const countryCode = "+45";
+    const toNumber = Number(username);
+    const isEmail = isNaN(toNumber);
+    let user: any = null;
+    if (isEmail) {
+   
+        user = await adminModel.findOne({ email: username }).select('+password');
+        if (!user) {
+            user = await usersModel.findOne({ email: username }).select('+password');
         }
-        else {
-            const generatePasswordResetTokenBysms = await generatePasswordResetTokenByPhone(phoneNumber)
-    
-            if (generatePasswordResetTokenBysms !== null) {
-                await generatePasswordResetTokenByPhoneWithTwilio(phoneNumber, generatePasswordResetTokenBysms.token)
-                return { success: true, message: "Password reset sms sent with otp" }
-            }
+        if (!user) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
+     
+        const passwordResetToken = await generatePasswordResetToken(username);
+        if (passwordResetToken) {
+            await sendPasswordResetEmail(username, passwordResetToken.token);
+            return { success: true, message: "Password reset email sent with OTP" };
+        }
+    } else {
+        // Format phone number with country code
+        const formattedPhoneNumber = `${countryCode}${username}`;
+        user = await adminModel.findOne({ phoneNumber: formattedPhoneNumber }).select('+password');
+        if (!user) {
+            user = await usersModel.findOne({ phoneNumber: formattedPhoneNumber }).select('+password');
         }
 
+        if (!user) {
+            return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
+        }
 
-}
+        // Generate password reset token for phone
+        const passwordResetTokenBySms = await generatePasswordResetTokenByPhone(formattedPhoneNumber);
+        if (passwordResetTokenBySms) {
+            await generatePasswordResetTokenByPhoneWithTwilio(formattedPhoneNumber, passwordResetTokenBySms.token);
+            return { success: true, message: "Password reset SMS sent with OTP" };
+        }
+    }
+
+    // If token generation failed
+    return errorResponseHandler('Failed to generate password reset token', httpStatusCode.INTERNAL_SERVER_ERROR, res);
+};
+
 
 export const newPassswordAfterOTPVerifiedService = async (payload: { password: string, otp: string }, res: Response) => {
     // console.log('payload: ', payload);
