@@ -80,7 +80,7 @@ export const getUserProjectsService = async (payload: any, res: Response) => {
     .limit(limit)
     .select("-__v");
     
-    console.log('results: ', results);
+
     
     if (results.length === 0) {
        return errorResponseHandler("Project not found for this user", httpStatusCode.NOT_FOUND, res);
@@ -105,7 +105,7 @@ export const createProjectService = async (payload: any, res: Response) => {
     const identifier = customAlphabet('0123456789', 3)
     payload.identifier = identifier()
     const project = new projectsModel({ ...payload }).save()
-    console.log(project);
+
     return { success: true, message: "Project created successfull" }
 
 }
