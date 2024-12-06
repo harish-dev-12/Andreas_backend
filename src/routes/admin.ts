@@ -38,7 +38,6 @@ import { checkAuth } from "src/middleware/check-auth";
 
 const router = Router();
 
-router.patch("/forgot-password", forgotPassword)
 router.post("/verify-otp", verifyOtpPasswordReset)
 router.patch("/new-password-otp-verified", newPassswordAfterOTPVerified)
 router.get("/dashboard", checkAuth, getDashboardStats)

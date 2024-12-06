@@ -30,33 +30,31 @@ import { avatarModel } from "src/models/admin/avatar-schema";
 
 export const loginService = async (payload: any, res: Response) => {
     const { username, password } = payload;
+    const countryCode = "+45"; 
     const toNumber = Number(username);
     const isEmail = isNaN(toNumber); 
     let user: any = null;
-    let userType: string = '';
-    console.log('isEmail: ', isEmail);
 
     if (isEmail) {
+
         user = await adminModel.findOne({ email: username }).select('+password');
         if (!user) {
             user = await usersModel.findOne({ email: username }).select('+password');
         }
     } else {
-        user = await adminModel.findOne({ phoneNumber: username }).select('+password');
+
+        const formattedPhoneNumber = `${countryCode}${username}`;
+        user = await adminModel.findOne({ phoneNumber: formattedPhoneNumber }).select('+password');
         if (!user) {
-            user = await usersModel.findOne({ phoneNumber: username }).select('+password');
+            user = await usersModel.findOne({ phoneNumber: formattedPhoneNumber }).select('+password');
         }
     }
 
     if (!user) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
-
-    let isPasswordValid = false;
-    if (user) {
-        isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+        return errorResponseHandler('Invalid password', httpStatusCode.UNAUTHORIZED, res);
     }
-
-    if (!isPasswordValid) return errorResponseHandler('Invalid password', httpStatusCode.UNAUTHORIZED, res);
-
     const userObject = user.toObject();
     delete userObject.password;
 
@@ -68,6 +66,7 @@ export const loginService = async (payload: any, res: Response) => {
         },
     };
 };
+
 
 
 

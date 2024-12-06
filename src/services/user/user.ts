@@ -15,12 +15,18 @@ import mongoose from "mongoose"
 
 
 export const signupService = async (payload: any, res: Response) => {
-    const client = await usersModel.findOne({ email: payload.email })
-    if (client) return errorResponseHandler("Email already exists", httpStatusCode.BAD_REQUEST, res)
+    const countryCode = "+45";
+    const emailExists  = await usersModel.findOne({ email: payload.email })
+    if (emailExists ) return errorResponseHandler("Email already exists", httpStatusCode.BAD_REQUEST, res)
+    const phoneExists = await usersModel.findOne({ phoneNumber: `${countryCode}${payload.phoneNumber}` });
+    if (phoneExists ) return errorResponseHandler("phone Number already exists", httpStatusCode.BAD_REQUEST, res)
+
+    payload.phoneNumber = `${countryCode}${payload.phoneNumber}`;
     const newPassword = bcrypt.hashSync(payload.password, 10)
     payload.password = newPassword
     const genId = customAlphabet('1234567890', 8)
     const identifier = customAlphabet('0123456789', 3)
+    
     payload.myReferralCode = `${process.env.NEXT_PUBLIC_APP_URL}/signup?referralCode=${genId()}`
     payload.identifier = identifier()
     // if(payload.referralCode) {
