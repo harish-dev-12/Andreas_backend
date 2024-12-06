@@ -80,7 +80,7 @@ export const forgotPasswordService = async (payload: any, res: Response) => {
 }
 
 export const verifyOtpPasswordResetService = async (token: string, res: Response) => {
-    const existingToken:any = await getPasswordResetTokenByToken(token)
+    const existingToken = await getPasswordResetTokenByToken(token)
     if (!existingToken) return errorResponseHandler("Invalid token", httpStatusCode.BAD_REQUEST, res)
 
     const hasExpired = new Date(existingToken.expires) < new Date()
@@ -89,49 +89,55 @@ export const verifyOtpPasswordResetService = async (token: string, res: Response
 }
 
 
-export const newPassswordAfterOTPVerifiedService = async (payload: { password: string, otp: string },res: Response) => {
-    const { password, otp } = payload;
+export const newPassswordAfterOTPVerifiedService = async (payload: { password: string, otp: string }, res: Response) => {
+    const { password, otp } = payload
+    const existingToken = await getPasswordResetTokenByToken(otp)
+    if (!existingToken) return errorResponseHandler("Invalid OTP", httpStatusCode.BAD_REQUEST, res)
 
-    const existingToken = await getPasswordResetTokenByToken(otp);
-    if (!existingToken) {
-        return errorResponseHandler("Invalid OTP", httpStatusCode.BAD_REQUEST, res);
-    }
+        // console.log("existingToken", existingToken);
 
-    console.log("existingToken", existingToken);
+    const hasExpired = new Date(existingToken.expires) < new Date()
+    if (hasExpired) return errorResponseHandler("OTP expired", httpStatusCode.BAD_REQUEST, res)
 
-    const hasExpired = new Date(existingToken.expires) < new Date();
-    if (hasExpired) return errorResponseHandler("OTP expired", httpStatusCode.BAD_REQUEST, res);
-    
-    let existingClient: any = null;
-    let clientModel: any = null;
+    let existingClient:any;
 
     if (existingToken.email) {
-        existingClient = await usersModel.findOne({ email: existingToken.email });
-        clientModel = existingClient ? usersModel : await adminModel.findOne({ email: existingToken.email });
-    } else if (existingToken.phoneNumber) {
+        existingClient = await adminModel.findOne({ email: existingToken.email });
+        if (!existingClient) {
+            existingClient = await usersModel.findOne({ email: existingToken.email });
+        }
+        if (!existingClient) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
+
+    }
+    else if (existingToken.phoneNumber) {
+
         existingClient = await usersModel.findOne({ phoneNumber: existingToken.phoneNumber });
-        clientModel = existingClient ? usersModel : await adminModel.findOne({ phoneNumber: existingToken.phoneNumber });
+        if (!existingClient) {
+            existingClient = await usersModel.findOne({ phoneNumber: existingToken.phoneNumber });
+        }
+        if (!existingClient) return errorResponseHandler('User not found', httpStatusCode.NOT_FOUND, res);
+
     }
 
-    if (!existingClient) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res);
-    
-    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('existingClient',existingClient)
 
-    const updatedClient = await clientModel.findByIdAndUpdate(
-        existingClient._id,
-        { password: hashedPassword },
-        { new: true }
-    );
+    const hashedPassword = await bcrypt.hash(password, 10)
 
-    // await passwordResetTokenModel.findByIdAndDelete(existingToken._id);
+    if(existingClient.role =='admin'){
+        const response = await adminModel.findByIdAndUpdate(existingClient._id, { password: hashedPassword }, { new: true })
+    }else{
+        const response = await usersModel.findByIdAndUpdate(existingClient._id, { password: hashedPassword }, { new: true }) 
+    }
+
+
+
+    // await passwordResetTokenModel.findByIdAndDelete(existingToken._id)
 
     return {
         success: true,
-        message: "Password updated successfully",
-        data: updatedClient,
-    };
-};
-
+        message: "Password updated successfully"
+    }
+}
 
 export const passwordResetService = async (req: Request, res: Response) => {
     const { currentPassword, newPassword } = req.body

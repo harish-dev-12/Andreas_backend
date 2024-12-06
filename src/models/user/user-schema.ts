@@ -34,9 +34,12 @@ const usersSchema = new mongoose.Schema({
     },
     profilePic:  {
         type: String,
-        
+        default: null 
     },
-    address: { type: String },
+    address: { 
+        type: String,
+        default: null 
+    },
 }, { timestamps: true })
 
 export const usersModel = mongoose.model("users", usersSchema)
