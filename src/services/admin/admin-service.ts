@@ -68,8 +68,6 @@ export const loginService = async (payload: any, res: Response) => {
 };
 
 
-
-
 export const forgotPasswordService = async (payload: any, res: Response) => {
     const { username } = payload;
     const countryCode = "+45";
@@ -179,7 +177,6 @@ export const getAUserService = async (id: string, res: Response) => {
       }
   };
 }
-
 
 
 export const addCreditsManuallyService = async (id: string, amount: number, res: Response) => {
