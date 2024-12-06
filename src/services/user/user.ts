@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { errorResponseHandler } from "../../lib/errors/error-response-handler"
 import { usersModel } from "../../models/user/user-schema"
 import bcrypt from "bcryptjs"
+import { adminModel } from "../../models/admin/admin-schema";
 import { generatePasswordResetToken, generatePasswordResetTokenByPhone, getPasswordResetTokenByToken } from "../../utils/mails/token"
 import { sendPasswordResetEmail } from "../../utils/mails/mail"
 import { generatePasswordResetTokenByPhoneWithTwilio } from "../../utils/sms/sms"
@@ -79,7 +80,7 @@ export const forgotPasswordService = async (payload: any, res: Response) => {
 }
 
 export const verifyOtpPasswordResetService = async (token: string, res: Response) => {
-    const existingToken = await getPasswordResetTokenByToken(token)
+    const existingToken:any = await getPasswordResetTokenByToken(token)
     if (!existingToken) return errorResponseHandler("Invalid token", httpStatusCode.BAD_REQUEST, res)
 
     const hasExpired = new Date(existingToken.expires) < new Date()
@@ -88,35 +89,49 @@ export const verifyOtpPasswordResetService = async (token: string, res: Response
 }
 
 
-export const newPassswordAfterOTPVerifiedService = async (payload: { password: string, otp: string }, res: Response) => {
-    const { password, otp } = payload
-    const existingToken = await getPasswordResetTokenByToken(otp)
-    if (!existingToken) return errorResponseHandler("Invalid OTP", httpStatusCode.BAD_REQUEST, res)
+export const newPassswordAfterOTPVerifiedService = async (payload: { password: string, otp: string },res: Response) => {
+    const { password, otp } = payload;
 
-    const hasExpired = new Date(existingToken.expires) < new Date()
-    if (hasExpired) return errorResponseHandler("OTP expired", httpStatusCode.BAD_REQUEST, res)
+    const existingToken = await getPasswordResetTokenByToken(otp);
+    if (!existingToken) {
+        return errorResponseHandler("Invalid OTP", httpStatusCode.BAD_REQUEST, res);
+    }
 
-    let existingClient;
+    console.log("existingToken", existingToken);
+
+    const hasExpired = new Date(existingToken.expires) < new Date();
+    if (hasExpired) return errorResponseHandler("OTP expired", httpStatusCode.BAD_REQUEST, res);
+    
+    let existingClient: any = null;
+    let clientModel: any = null;
 
     if (existingToken.email) {
         existingClient = await usersModel.findOne({ email: existingToken.email });
-    }
-    else if (existingToken.phoneNumber) {
+        clientModel = existingClient ? usersModel : await adminModel.findOne({ email: existingToken.email });
+    } else if (existingToken.phoneNumber) {
         existingClient = await usersModel.findOne({ phoneNumber: existingToken.phoneNumber });
+        clientModel = existingClient ? usersModel : await adminModel.findOne({ phoneNumber: existingToken.phoneNumber });
     }
 
-    if (!existingClient) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
+    if (!existingClient) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res);
+    
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const hashedPassword = await bcrypt.hash(password, 10)
-    const response = await usersModel.findByIdAndUpdate(existingClient._id, { password: hashedPassword }, { new: true })
-    await passwordResetTokenModel.findByIdAndDelete(existingToken._id)
+    const updatedClient = await clientModel.findByIdAndUpdate(
+        existingClient._id,
+        { password: hashedPassword },
+        { new: true }
+    );
+
+    // await passwordResetTokenModel.findByIdAndDelete(existingToken._id);
 
     return {
         success: true,
         message: "Password updated successfully",
-        data: response
-    }
-}
+        data: updatedClient,
+    };
+};
+
 
 export const passwordResetService = async (req: Request, res: Response) => {
     const { currentPassword, newPassword } = req.body
