@@ -105,15 +105,8 @@ export const getUserInfoByEmail = async (req: Request, res: Response) => {
 }
 
 export const editUserInfo = async (req: Request, res: Response) => {
-    const payload = req.body
-    const newPayload = { ...payload, id: req.params.id }
-    if (payload.dob && typeof payload.dob === 'string') {
-        newPayload.dob = new Date(newPayload.dob)
-    }
-    const validation = clientEditSchema.safeParse(payload)
-    if (!validation.success) return res.status(httpStatusCode.BAD_REQUEST).json({ success: false, message: formatZodErrors(validation.error) })
     try {
-        const response = await editUserInfoService(newPayload, res)
+        const response = await editUserInfoService(req.params.id, req.body, res);
         return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)

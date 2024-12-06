@@ -66,7 +66,7 @@ export const updateAProject = async (req: Request, res: Response) => {
 export const getUserProjects = async (req: Request, res: Response) => {
     try {
         const response = await getUserProjectsService({ id: req.params.id, ...req.query }, res)
-        return res.status(response.total > 0 ? httpStatusCode.OK : httpStatusCode.NO_CONTENT).json(response)
+        return res.status(httpStatusCode.OK).json(response)
     }
     catch (error: any) {
         const { code, message } = errorParser(error)

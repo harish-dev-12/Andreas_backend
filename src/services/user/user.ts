@@ -135,13 +135,19 @@ export const passwordResetService = async (req: Request, res: Response) => {
 }
 
 export const getUserInfoService = async (id: string, res: Response) => {
-    const client = await usersModel.findById(id)
-    if (!client) return errorResponseHandler("User not found", httpStatusCode.NOT_FOUND, res)
+    const user = await usersModel.findById(id);
+    if (!user) return errorResponseHandler("User not found", httpStatusCode.NOT_FOUND, res);
+  
+    const userProjects = await projectsModel.find({ userId: id }).select("-__v");
+  
     return {
         success: true,
-        message: "Client info fetched successfully",
-        data: client
-    }
+        message: "User retrieved successfully",
+        data: {
+            user,
+            projects: userProjects.length > 0 ? userProjects : [],
+        }
+    };
 }
 
 export const getUserInfoByEmailService = async (email: string, res: Response) => {
@@ -154,17 +160,18 @@ export const getUserInfoByEmailService = async (email: string, res: Response) =>
     }
 }
 
-export const editUserInfoService = async (payload: any, res: Response) => {
-    const { id } = payload
-    const client = await usersModel.findById(id)
-    if (!client) return errorResponseHandler("User not found", httpStatusCode.NOT_FOUND, res)
+export const editUserInfoService = async (id: string, payload: any, res: Response) => {
+    const user = await usersModel.findById(id);
+    if (!user) return errorResponseHandler("User not found", httpStatusCode.NOT_FOUND, res);
+    const countryCode = "+45";
+    payload.phoneNumber = `${countryCode}${payload.phoneNumber}`;
+    const updateduser = await usersModel.findByIdAndUpdate(id,{ ...payload },{ new: true});
 
-    const updatedClient = await usersModel.findByIdAndUpdate(id, payload, { new: true })
     return {
         success: true,
-        message: "Client info updated successfully",
-        data: updatedClient
-    }
+        message: "User updated successfully",
+        data: updateduser,
+    };
 }
 
 

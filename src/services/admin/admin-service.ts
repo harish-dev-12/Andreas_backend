@@ -255,8 +255,10 @@ export const getDashboardStatsService = async (payload: any, res: Response) => {
     const ongoingProjectCount = await projectsModel.countDocuments({status: { $ne: "1" } })
     const completedProjectCount = await projectsModel.countDocuments({status: "1" })
     const workingProjectDetails = await projectsModel.find({status: { $ne: "1" } }).select("projectName projectimageLink projectstartDate projectendDate status"); // Adjust the fields as needed
-    const recentProjectDetails = await projectsModel.find({}).select("projectName projectimageLink projectstartDate projectendDate"); // Adjust the fields as needed
 
+    const sevenDaysAgo = new Date(new Date().setDate(new Date().getDate() - 7)) 
+    const recentProjectDetails = await projectsModel.find({createdAt: { $gte: sevenDaysAgo } }).select("projectName projectimageLink projectstartDate projectendDate"); // Adjust the fields as needed
+ 
     const response = {
         success: true,
         message: "Dashboard stats fetched successfully",
