@@ -105,7 +105,7 @@ export const newPassswordAfterOTPVerifiedService = async (payload: { password: s
         existingClient = await usersModel.findOne({ phoneNumber: existingToken.phoneNumber });
     }
 
-    if (!existingClient) return errorResponseHandler("Client email not found", httpStatusCode.NOT_FOUND, res)
+    if (!existingClient) return errorResponseHandler("Client not found", httpStatusCode.NOT_FOUND, res)
 
     const hashedPassword = await bcrypt.hash(password, 10)
     const response = await usersModel.findByIdAndUpdate(existingClient._id, { password: hashedPassword }, { new: true })
