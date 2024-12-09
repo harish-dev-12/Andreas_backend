@@ -22,7 +22,6 @@ router.get('/avatars', checkAuth, getAvatar)
 router.route("/:id/notifications").get(checkAuth, getAllNotificationsOfUser).put(checkAuth, markAllNotificationsAsRead)
 router.get("/email/:email", checkAuth, getUserInfoByEmail)
 
-
 router.post("/:id/text-to-video", checkAuth, convertTextToVideo)
 router.post("/:id/audio-to-video", checkAuth, convertAudioToVideo)
 router.post("/:id/video-translation", checkAuth, translateVideo)
