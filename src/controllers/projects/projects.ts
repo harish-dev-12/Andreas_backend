@@ -29,7 +29,6 @@ export const createProject = async (req: Request, res: Response) => {
     }
 }
 
-
 export const getAProject = async (req: Request, res: Response) => {
     try {
         const response = await getAprojectService(req.params.id, res)
