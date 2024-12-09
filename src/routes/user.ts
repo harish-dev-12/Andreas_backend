@@ -19,7 +19,6 @@ router.route("/project/:id").get(checkAuth, getAProject)
 
 
 
-
 router.get('/avatars', checkAuth, getAvatar)
 router.route("/:id/notifications").get(checkAuth, getAllNotificationsOfUser).put(checkAuth, markAllNotificationsAsRead)
 router.get("/email/:email", checkAuth, getUserInfoByEmail)
