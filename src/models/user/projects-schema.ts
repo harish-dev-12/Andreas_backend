@@ -9,12 +9,13 @@ const projectsSchema = new Schema({
     projectendDate: { type: String, required: true },
     description: { type: String, required: true },
     attachments: [
-        {
-          filePath: { type: String, required: true }, // File path of the attachment
-          uploadedBy: { type: Schema.Types.ObjectId, required: true, ref: "users" }, // Uploader's ID
-          _id: false, // Disable _id for each attachment
-        },
-      ],
+      {
+        filePath: { type: String, required: true }, // File path of the attachment
+        uploadedBy: { type: Schema.Types.ObjectId, required: true, ref: "users" }, // Uploader's ID
+        createdAt: { type: Date, default: Date.now }, // Timestamp when created
+        _id: false, // Disable _id for each attachment
+      },
+    ],
     associates: { type: [String], required: false },
     status: { type: String, required: false },
     notes: { type: [String], required: false },

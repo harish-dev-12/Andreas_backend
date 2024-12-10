@@ -114,6 +114,29 @@ export const createProjectService = async (payload: any, res: Response) => {
 };
 
 
+export const updateAProjectService = async (payload: any, res: Response) => {
+    const currentUserId = payload.currentUser;
+console.log("currentUserId",currentUserId)
+
+    const project = await projectsModel.findById(payload.id);
+    if (!project) return errorResponseHandler("Project not found", httpStatusCode.NOT_FOUND, res);
+
+    payload.attachments = payload.attachments.map((file: string) => ({
+        filePath: file,
+        uploadedBy: currentUserId,
+    }));
+
+    const updatedProject = await projectsModel.findByIdAndUpdate(payload.id,{ ...payload },{ new: true});
+
+    return {
+        success: true,
+        message: "Project updated successfully",
+        data: updatedProject,
+    };
+
+};
+
+
 export const getAprojectService = async (id: string, res: Response) => {
    
     const project = await projectsModel.findById(id).populate("userId", "fullName email") .populate({path: "attachments.uploadedBy",select: "fullName email",});
@@ -127,20 +150,7 @@ export const getAprojectService = async (id: string, res: Response) => {
 
 };
 
-export const updateAProjectService = async (id: string, payload: any, res: Response) => {
-  
-    const project = await projectsModel.findById(id);
-    if (!project) return errorResponseHandler("Project not found", httpStatusCode.NOT_FOUND, res);
 
-    const updatedProject = await projectsModel.findByIdAndUpdate(id,{ ...payload },{ new: true});
-
-    return {
-        success: true,
-        message: "Project updated successfully",
-        data: updatedProject,
-    };
-
-};
 
 export const deleteAProjectService = async (id: string, res: Response) => {
     const user = await projectsModel.findById(id);

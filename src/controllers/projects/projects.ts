@@ -29,6 +29,18 @@ export const createProject = async (req: Request, res: Response) => {
     }
 }
 
+export const updateAProject = async (req: Request, res: Response) => {
+    try {
+        const response = await updateAProjectService({currentUser : (req as any).currentUser,id:req.params.id,...req.body}, res);
+        
+        return res.status(httpStatusCode.OK).json(response)
+    } catch (error: any) {
+        const { code, message } = errorParser(error)
+        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
+    }
+}
+
+
 export const getAProject = async (req: Request, res: Response) => {
     try {
         const response = await getAprojectService(req.params.id, res)
@@ -49,15 +61,6 @@ export const deleteAProject = async (req: Request, res: Response) => {
     }
 }
 
-export const updateAProject = async (req: Request, res: Response) => {
-    try {
-        const response = await updateAProjectService(req.params.id, req.body, res);
-        return res.status(httpStatusCode.OK).json(response)
-    } catch (error: any) {
-        const { code, message } = errorParser(error)
-        return res.status(code || httpStatusCode.INTERNAL_SERVER_ERROR).json({ success: false, message: message || "An error occurred" });
-    }
-}
 
 
 
