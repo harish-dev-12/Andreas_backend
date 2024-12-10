@@ -45,7 +45,6 @@ export const deleteANoteService = async (id: string, res: Response) => {
     }
 }
 
-
 export const createNoteService = async (payload: any, res: Response) => {
     
         const newNote = new notesModel({
@@ -57,8 +56,10 @@ export const createNoteService = async (payload: any, res: Response) => {
         // Save the note
         const createdNote = await newNote.save();
 
-    return res.status(201).json({
+    return {
         success: true,
-        message: "Notes created successfully",
-    });
+        message: "Notes created successfully"
+        
+    }
+
 };
