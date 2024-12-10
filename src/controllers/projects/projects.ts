@@ -21,7 +21,7 @@ export const getAllProjects = async (req: Request, res: Response) => {
 
 export const createProject = async (req: Request, res: Response) => {
     try {
-        const response = await createProjectService(req.body, res)
+        const response = await createProjectService({currentUser : (req as any).currentUser, ...req.body}, res)
         return res.status(httpStatusCode.CREATED).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)

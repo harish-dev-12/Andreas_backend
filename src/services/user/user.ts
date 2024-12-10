@@ -200,9 +200,9 @@ export const editUserInfoService = async (id: string, payload: any, res: Respons
 // Dashboard
 export const getDashboardStatsService = async (payload: any, res: Response) => {
     //Ongoing project count
-    const userId = payload.userId
+    const userId = payload.currentUser
 
-    // console.log("userid",userId);
+    console.log("userid",userId);
 
     const ongoingProjectCount = await projectsModel.countDocuments({ userId, status: { $ne: "1" } })
 

@@ -94,18 +94,29 @@ export const getUserProjectsService = async (payload: any, res: Response) => {
 }
 
 export const createProjectService = async (payload: any, res: Response) => {
-    
-    const identifier = customAlphabet('0123456789', 3)
-    payload.identifier = identifier()
-    const project = new projectsModel({ ...payload }).save()
+    const currentUserId = payload.currentUser;
+    const currentUser = await usersModel.findById(currentUserId).select('fullName');
 
-    return { success: true, message: "Project created successfull" }
+    if (!currentUser) {
+        return res.status(404).json({ success: false, message: "User not found" });
+    }
+    // console.log('currentUser:', currentUser);
+    payload.createdby = currentUserId;
+    const identifier = customAlphabet('0123456789', 3);
+    payload.identifier = identifier();
 
-}
+    payload.attachments = payload.attachments.map((file: string) => ({
+        filePath: file,
+        uploadedBy: currentUserId,
+    }));
+    const project = await new projectsModel({ ...payload }).save();
+    return { success: true, message: "Project created successfully" };
+};
+
 
 export const getAprojectService = async (id: string, res: Response) => {
    
-        const project = await projectsModel.findById(id).populate("userId")
+    const project = await projectsModel.findById(id).populate("userId", "fullName email") .populate({path: "attachments.uploadedBy",select: "fullName email",});
         if (!project) return errorResponseHandler("Project not found", httpStatusCode.NOT_FOUND, res);
         return {
             success: true,
