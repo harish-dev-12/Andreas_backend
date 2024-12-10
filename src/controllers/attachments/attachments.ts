@@ -2,15 +2,15 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { httpStatusCode } from "src/lib/constant";
 import { errorParser } from "src/lib/errors/error-response-handler";
-import { getAnotesService ,deleteANoteService, createNoteService} from "src/services/notes/notes";
+import { getAattachmentsService ,deleteAattachmentService, createattachmentService} from "src/services/attachments/attachments";
 import { formatZodErrors } from "src/validation/format-zod-errors";
 
 
 
 
-export const getAnotes = async (req: Request, res: Response) => {
+export const getAattattachment = async (req: Request, res: Response) => {
     try {
-        const response = await getAnotesService(req.params.id, res)
+        const response = await getAattachmentsService(req.params.id, res)
         return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
@@ -19,9 +19,9 @@ export const getAnotes = async (req: Request, res: Response) => {
 }
 
 
-export const deleteANote = async (req: Request, res: Response) => {
+export const deleteAattachment = async (req: Request, res: Response) => {
     try {
-        const response = await deleteANoteService(req.params.id, res)
+        const response = await deleteAattachmentService(req.params.id, res)
         return res.status(httpStatusCode.OK).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
@@ -30,9 +30,9 @@ export const deleteANote = async (req: Request, res: Response) => {
 }
 
 
-export const createNote = async (req: Request, res: Response) => {
+export const createattachment = async (req: Request, res: Response) => {
     try {
-        const response = await createNoteService({id:req.params.id,...req.body}, res)
+        const response = await createattachmentService({ id:req.params.id, ...req.body}, res)
         return res.status(httpStatusCode.CREATED).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)

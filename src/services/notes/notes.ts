@@ -48,9 +48,9 @@ export const deleteANoteService = async (id: string, res: Response) => {
 export const createNoteService = async (payload: any, res: Response) => {
     
         const newNote = new notesModel({
-            text: payload.text,  // The text field of the note
-            projectid: payload.projectid,  // Referencing the project by its _id
-            identifier: customAlphabet('0123456789', 5)(),  // Optional: Create a unique identifier for the note
+            text: payload.text,  
+            projectid: payload.id, 
+            identifier: customAlphabet('0123456789', 5)(), 
         });
 
         // Save the note

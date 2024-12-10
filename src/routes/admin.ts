@@ -33,6 +33,13 @@ import {
 
 } from "src/controllers/notes/notes";
 
+import { 
+    getAattattachment,
+    deleteAattachment,
+    createattachment
+
+} from "src/controllers/attachments/attachments";
+
 // import { checkAdminAuth } from "../middleware/check-auth";
 import { upload } from "../configF/multer";
 import { checkMulter } from "../lib/errors/error-response-handler"
@@ -58,8 +65,10 @@ router.post("/send-latest-updates", checkAuth, sendLatestUpdates)
 router.post("/send-notification", checkAuth, sendNotificationToUsers)
 router.post("/send-notification-to-specific-users", checkAuth, sendNotificationToUser)
 
-router.route("/notes").post(checkAuth, createNote)
-router.route("/notes/:id").get(checkAuth, getAnotes).delete(checkAuth, deleteANote)
+router.route("/notes/:id").get(checkAuth, getAnotes).delete(checkAuth, deleteANote).post(checkAuth, createNote)
+
+router.route("/attachments/:id").get(checkAuth, getAattattachment).delete(checkAuth, deleteAattachment).post(checkAuth, createattachment)
+
 
 router.post("/users/add-credit/:id", checkAuth, addCreditsManually)
 router.get("/income", checkAuth, getIncomeData)
