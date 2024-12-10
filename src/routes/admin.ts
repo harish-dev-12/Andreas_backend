@@ -26,6 +26,13 @@ import {
 
 } from "src/controllers/projects/projects";
 
+import { 
+    getAnotes,
+    deleteANote,
+    createNote
+
+} from "src/controllers/notes/notes";
+
 // import { checkAdminAuth } from "../middleware/check-auth";
 import { upload } from "../configF/multer";
 import { checkMulter } from "../lib/errors/error-response-handler"
@@ -51,7 +58,8 @@ router.post("/send-latest-updates", checkAuth, sendLatestUpdates)
 router.post("/send-notification", checkAuth, sendNotificationToUsers)
 router.post("/send-notification-to-specific-users", checkAuth, sendNotificationToUser)
 
-
+router.route("/notes").post(checkAuth, createNote)
+router.route("/notes/:id").get(checkAuth, getAnotes).delete(checkAuth, deleteANote)
 
 router.post("/users/add-credit/:id", checkAuth, addCreditsManually)
 router.get("/income", checkAuth, getIncomeData)

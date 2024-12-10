@@ -7,6 +7,7 @@ import { httpStatusCode } from "src/lib/constant"
 import { errorResponseHandler } from "src/lib/errors/error-response-handler"
 import { projectsModel } from "src/models/user/projects-schema"
 import { usersModel } from "src/models/user/user-schema"
+import { notesModel } from "src/models/notes-schema"
 import { queryBuilder } from "../../utils";
 import { customAlphabet } from "nanoid"
 import { flaskTextToVideo, flaskAudioToVideo, flaskTranslateVideo } from "src/utils";
@@ -94,24 +95,36 @@ export const getUserProjectsService = async (payload: any, res: Response) => {
 }
 
 export const createProjectService = async (payload: any, res: Response) => {
-    const currentUserId = payload.currentUser;
-    const currentUser = await usersModel.findById(currentUserId).select('fullName');
+        const currentUserId = payload.currentUser
+        payload.createdby = currentUserId;
+        const identifier = customAlphabet('0123456789', 3);
+        payload.identifier = identifier();
+        payload.attachments = payload.attachments.map((file: string) => ({
+            filePath: file,
+            uploadedBy: currentUserId,
+        }));
 
-    if (!currentUser) {
-        return res.status(404).json({ success: false, message: "User not found" });
-    }
-    // console.log('currentUser:', currentUser);
-    payload.createdby = currentUserId;
-    const identifier = customAlphabet('0123456789', 3);
-    payload.identifier = identifier();
+        const project = await new projectsModel({
+            ...payload,
+        }).save();
 
-    payload.attachments = payload.attachments.map((file: string) => ({
-        filePath: file,
-        uploadedBy: currentUserId,
-    }));
-    const project = await new projectsModel({ ...payload }).save();
-    return { success: true, message: "Project created successfully" };
+        if (payload.notes) {
+            const newNote = new notesModel({
+                text: payload.notes,  // The text field of the note
+                projectid: project._id,  // Referencing the project by its _id
+                identifier: customAlphabet('0123456789', 5)(),  // Optional: Create a unique identifier for the note
+            });
+
+            // Save the note
+            const createdNote = await newNote.save();
+    
+        }
+        return res.status(201).json({
+            success: true,
+            message: "Project created successfully",
+        });
 };
+
 
 
 export const updateAProjectService = async (payload: any, res: Response) => {
