@@ -202,7 +202,7 @@ export const getDashboardStatsService = async (payload: any, res: Response) => {
     //Ongoing project count
     const userId = payload.currentUser
 
-    console.log("userid",userId);
+    // console.log("userid",userId);
 
     const ongoingProjectCount = await projectsModel.countDocuments({ userId, status: { $ne: "1" } })
 
