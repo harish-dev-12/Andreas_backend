@@ -19,8 +19,8 @@ import mongoose from "mongoose";
 export const getAattachmentsService = async (id: string, res: Response) => {
    
     const attachments = await attachmentsModel
-            .find({ projectid: id }) ; // Find all notes where projectid matches the given id
-            // .populate("projectid");
+            .find({ projectid: id })  // Find all notes where projectid matches the given id
+            .populate("createdby");
             
             if (!attachments) return errorResponseHandler("Attachmnets not found", httpStatusCode.NOT_FOUND, res);
 
@@ -49,11 +49,13 @@ export const deleteAattachmentService = async (id: string, res: Response) => {
 }
 
 export const createattachmentService = async (payload: any, res: Response) => {
-    
+    const currentUserId = payload.currentUser
+
+    console.log("currentUserId",currentUserId);
         const newAttachments= new attachmentsModel({
             url: payload.url,  // The text field of the note
             projectid: payload.id,  // Referencing the project by its _id
-            createdby:payload.id,
+            createdby:currentUserId,
             identifier: customAlphabet('0123456789', 5)(),  // Optional: Create a unique identifier for the note
         });
 

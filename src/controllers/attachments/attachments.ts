@@ -32,7 +32,7 @@ export const deleteAattachment = async (req: Request, res: Response) => {
 
 export const createattachment = async (req: Request, res: Response) => {
     try {
-        const response = await createattachmentService({ id:req.params.id, ...req.body}, res)
+        const response = await createattachmentService({currentUser : (req as any).currentUser,id:req.params.id, ...req.body}, res)
         return res.status(httpStatusCode.CREATED).json(response)
     } catch (error: any) {
         const { code, message } = errorParser(error)
