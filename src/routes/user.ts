@@ -5,6 +5,15 @@ import { getAllNotificationsOfUser, markAllNotificationsAsRead } from "src/contr
 import { getUserProjects, convertTextToVideo, convertAudioToVideo, translateVideo, deleteProject, getAProject } from "src/controllers/projects/projects";
 import { checkAuth } from "src/middleware/check-auth";
 import { getAvatar } from "src/controllers/admin/avatar";
+import { 
+    getAnotes,
+
+} from "src/controllers/notes/notes";
+
+import { 
+    getAattattachment
+
+} from "src/controllers/attachments/attachments";
 
 const router = Router();
 
@@ -16,7 +25,8 @@ router.get("/dashboard", checkAuth, getDashboardStats)
 router.get("/:id/projects", checkAuth, getUserProjects)
 router.route("/:id").get(checkAuth, getUserInfo).put(checkAuth, editUserInfo)
 router.route("/project/:id").get(checkAuth, getAProject)
-
+router.route("/notes/:id").get(checkAuth, getAnotes)
+router.route("/attachments/:id").get(checkAuth, getAattattachment)
 
 router.get('/avatars', checkAuth, getAvatar)
 router.route("/:id/notifications").get(checkAuth, getAllNotificationsOfUser).put(checkAuth, markAllNotificationsAsRead)
