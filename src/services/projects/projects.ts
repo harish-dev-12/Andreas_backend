@@ -162,7 +162,7 @@ console.log("currentUserId",currentUserId)
 
 
 export const getAprojectService = async (id: string, res: Response) => {
-   
+
     const project = await projectsModel.findById(id).populate("userId", "fullName email");
         if (!project) return errorResponseHandler("Project not found", httpStatusCode.NOT_FOUND, res);
         return {
