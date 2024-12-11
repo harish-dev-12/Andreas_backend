@@ -16,7 +16,9 @@ import mongoose from "mongoose";
 
 
 export const getAnotesService = async (id: string, res: Response) => {
-   
+    const projects = await projectsModel.findById(id);
+    if (!projects)
+      return errorResponseHandler("project not found",httpStatusCode.NOT_FOUND,res);
     const notes = await notesModel
             .find({ projectid: id }) ; // Find all notes where projectid matches the given id
             // .populate("projectid");
@@ -46,7 +48,9 @@ export const deleteANoteService = async (id: string, res: Response) => {
 }
 
 export const createNoteService = async (payload: any, res: Response) => {
-    
+    const project = await projectsModel.findById(payload.id);
+
+    if (!project) return errorResponseHandler("project not found", httpStatusCode.NOT_FOUND, res);
         const newNote = new notesModel({
             text: payload.text,  
             projectid: payload.id, 
