@@ -22,14 +22,14 @@ export const getAllProjectService = async (payload: any) => {
     const limit = parseInt(payload.limit as string) || 0;
     const offset = (page - 1) * limit;
 
-    let { query, sort } = queryBuilder(payload, ['1']); // Assuming queryBuilder helps create initial query and sort objects.
+    let { query, sort } = queryBuilder(payload, ['4']); // Assuming queryBuilder helps create initial query and sort objects.
 
     // Add state filtering logic
     if (payload.state) {
         if (payload.state === "ongoing") {
-            (query as any).status = { $ne: "1" }; 
+            (query as any).status = { $ne: "4" }; 
         } else if (payload.state === "completed") {
-            (query as any).status = "1"; 
+            (query as any).status = "4"; 
         }
     }
 
@@ -60,13 +60,13 @@ export const getUserProjectsService = async (payload: any, res: Response) => {
     const limit = parseInt(payload.limit as string) || 0;
     const offset = (page - 1) * limit;
 
-    let { query, sort } = queryBuilder(payload, ['1']); 
+    let { query, sort } = queryBuilder(payload, ['4']); 
 
     if (payload.state) {
         if (payload.state === "ongoing") {
-            (query as any).status = { $ne: "1" }; 
+            (query as any).status = { $ne: "4" }; 
         } else if (payload.state === "completed") {
-            (query as any).status = "1"; 
+            (query as any).status = "4"; 
         }
     }
 
