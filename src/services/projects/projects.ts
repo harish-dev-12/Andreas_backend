@@ -145,10 +145,6 @@ console.log("currentUserId",currentUserId)
     const project = await projectsModel.findById(payload.id);
     if (!project) return errorResponseHandler("Project not found", httpStatusCode.NOT_FOUND, res);
 
-    payload.attachments = payload.attachments.map((file: string) => ({
-        filePath: file,
-        uploadedBy: currentUserId,
-    }));
 
     const updatedProject = await projectsModel.findByIdAndUpdate(payload.id,{ ...payload },{ new: true});
 
