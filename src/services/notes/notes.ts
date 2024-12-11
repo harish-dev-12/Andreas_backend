@@ -46,7 +46,9 @@ export const deleteANoteService = async (id: string, res: Response) => {
 }
 
 export const createNoteService = async (payload: any, res: Response) => {
-    
+    const project = await projectsModel.findById(payload.id);
+
+    if (!project) return errorResponseHandler("project not found", httpStatusCode.NOT_FOUND, res);
         const newNote = new notesModel({
             text: payload.text,  
             projectid: payload.id, 
