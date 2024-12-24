@@ -1,9 +1,19 @@
 {
+  "version": 2,
   "builds": [
     {
-      "src": "src/index.ts",  // Adjust based on your entry file
-      "use": "@vercel/node"
+      "src": "src/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
     }
   ],
-  "outputDirectory": "dist"  // Set this to your build output directory
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/src/index.ts"
+    }
+  ],
+  "outputDirectory": "./dist"
 }
